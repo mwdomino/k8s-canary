@@ -54,7 +54,7 @@ install-namespaces: _require-context
     kubectl --context {{KUBE_CONTEXT}} apply -f bootstrap/app-namespaces.yaml
     kubectl --context {{KUBE_CONTEXT}} apply -f bootstrap/gateway/namespace.yaml
 
-install-gateway: _require-context
+install-gateway: _require-context lb-up
     kubectl --context {{KUBE_CONTEXT}} apply -f bootstrap/gateway/gateway.yaml
     kubectl --context {{KUBE_CONTEXT}} apply -f bootstrap/gateway/referencegrants.yaml
     kubectl --context {{KUBE_CONTEXT}} -n gateway wait --for=condition=Programmed gateway/shared --timeout=3m
