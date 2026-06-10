@@ -7,6 +7,6 @@ metadata:
   name: lb
   namespace: default
 spec:
-  description: "Force LoadBalancer Service for the cilium GatewayClass (kind + cpk)"
+  description: "LoadBalancer Service for kind + cpk"
   service:
     type: LoadBalancer
