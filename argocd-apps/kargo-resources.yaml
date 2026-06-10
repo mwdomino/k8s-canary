@@ -4,6 +4,26 @@ metadata:
   name: canary-poc
 ---
 apiVersion: kargo.akuity.io/v1alpha1
+kind: ProjectConfig
+metadata:
+  name: canary-poc
+  namespace: canary-poc
+spec:
+  # Auto-promote any new Freight into dev. From there, dev → stage → prod
+  # cascades automatically because each downstream Stage sources from the
+  # previous and is also auto-promoted.
+  promotionPolicies:
+    - stageSelector:
+        name: dev
+      autoPromotionEnabled: true
+    - stageSelector:
+        name: stage
+      autoPromotionEnabled: true
+    - stageSelector:
+        name: prod
+      autoPromotionEnabled: true
+---
+apiVersion: kargo.akuity.io/v1alpha1
 kind: Warehouse
 metadata:
   name: location-images
