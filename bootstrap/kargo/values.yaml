@@ -12,7 +12,6 @@ controller:
   argocd:
     namespace: argocd
 webhooksServer:
-  # Disabled — needs cert-manager. We poll the Warehouse instead.
-  enabled: false
+  enabled: true
 externalWebhooksServer:
   enabled: false

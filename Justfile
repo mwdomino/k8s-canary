@@ -81,7 +81,15 @@ install-rollouts: _require-context
     kubectl --context {{KUBE_CONTEXT}} -n argo-rollouts rollout restart deploy/argo-rollouts
     kubectl --context {{KUBE_CONTEXT}} -n argo-rollouts rollout status deploy/argo-rollouts
 
-install-kargo: _require-context
+install-cert-manager: _require-context
+    helm repo add jetstack https://charts.jetstack.io 2>/dev/null || true
+    helm repo update jetstack
+    helm --kube-context {{KUBE_CONTEXT}} upgrade --install cert-manager jetstack/cert-manager \
+      --namespace cert-manager --create-namespace \
+      --set crds.enabled=true \
+      --wait --timeout 5m
+
+install-kargo: _require-context install-cert-manager
     kubectl --context {{KUBE_CONTEXT}} apply -f bootstrap/kargo/namespace.yaml
     helm --kube-context {{KUBE_CONTEXT}} upgrade --install kargo oci://ghcr.io/akuity/kargo-charts/kargo \
       --namespace kargo \
