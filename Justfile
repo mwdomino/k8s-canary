@@ -108,10 +108,17 @@ install-platform: install-gateway-crds install-cilium install-namespaces install
 
 # === Kargo credentials ===
 
-# Apply Kargo git credentials. Requires env var: K8S_CANARY_PAT
+# Apply Kargo git credentials. Requires env var: K8S_CANARY_PAT.
+# Assumes the canary-poc namespace has already been created by Kargo
+# (via the Project CR synced by install-apps). Polls up to 60s for it.
 install-kargo-credentials: _require-context
     @test -n "${K8S_CANARY_PAT:-}" || (echo "set K8S_CANARY_PAT to your PAT"; exit 1)
-    kubectl --context {{KUBE_CONTEXT}} create namespace canary-poc --dry-run=client -o yaml | kubectl --context {{KUBE_CONTEXT}} apply -f -
+    @echo "waiting for namespace canary-poc (created by Kargo Project sync)..."
+    @for i in $(seq 1 30); do \
+       kubectl --context {{KUBE_CONTEXT}} get ns canary-poc >/dev/null 2>&1 && break; \
+       sleep 2; \
+     done
+    @kubectl --context {{KUBE_CONTEXT}} get ns canary-poc >/dev/null 2>&1 || (echo "canary-poc namespace did not appear; run 'just install-apps' first"; exit 1)
     PAT="${K8S_CANARY_PAT}" envsubst < bootstrap/kargo/credentials.template.yaml | kubectl --context {{KUBE_CONTEXT}} apply -f -
 
 # === apps (Argo CD app-of-apps + Kargo project) ===
@@ -136,7 +143,7 @@ urls: _require-context
      echo "  app2 prod:  http://app2-prod.{{LAN_IP}}.nip.io$PORT_SUFFIX"; \
      echo "  global:     http://global.{{LAN_IP}}.nip.io$PORT_SUFFIX"
 
-bootstrap: up lb-up install-platform install-kargo-credentials install-apps urls
+bootstrap: up lb-up install-platform install-apps install-kargo-credentials urls
 
 # === demo helpers ===
 
