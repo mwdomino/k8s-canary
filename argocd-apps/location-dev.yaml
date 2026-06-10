@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: location-dev
+  namespace: argocd
+  finalizers: [resources-finalizer.argocd.argoproj.io]
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+  sources:
+    - repoURL: https://github.com/mwdomino/canary-app.git
+      targetRevision: main
+      path: charts/location-apps
+      helm:
+        valueFiles:
+          - $values/apps/location/dev/values.yaml
+    - repoURL: https://github.com/mwdomino/k8s-canary.git
+      targetRevision: main
+      ref: values
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true
