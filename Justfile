@@ -83,9 +83,7 @@ install-rollouts: _require-context
 
 install-kargo: _require-context
     kubectl --context {{KUBE_CONTEXT}} apply -f bootstrap/kargo/namespace.yaml
-    helm repo add kargo https://charts.kargo.io 2>/dev/null || true
-    helm repo update kargo
-    helm --kube-context {{KUBE_CONTEXT}} upgrade --install kargo kargo/kargo \
+    helm --kube-context {{KUBE_CONTEXT}} upgrade --install kargo oci://ghcr.io/akuity/kargo-charts/kargo \
       --namespace kargo \
       -f bootstrap/kargo/values.yaml \
       --wait --timeout 5m
