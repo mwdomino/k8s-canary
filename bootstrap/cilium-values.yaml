@@ -5,12 +5,10 @@ gatewayAPI:
   enabled: true
   enableAlpn: false
   enableAppProtocol: false
-  # Run Envoy in the node's host network namespace so the Gateway listens
-  # on hostPort 80 directly. kind's extraPortMappings forward host:80 →
-  # control-plane container:80, so this is how LAN traffic reaches the
-  # Gateway without needing a LoadBalancer / cloud-provider-kind.
-  hostNetwork:
-    enabled: true
+  # We use cloud-provider-kind (`just lb-up`) to give the LoadBalancer
+  # Service an external IP and map its port to the host, so hostNetwork
+  # is NOT enabled here (it would force ClusterIP and prevent the
+  # Gateway from getting Programmed).
 envoy:
   enabled: true
 hubble:
