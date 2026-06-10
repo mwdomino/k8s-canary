@@ -1,0 +1,146 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Project
+metadata:
+  name: canary-poc
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Warehouse
+metadata:
+  name: location-images
+  namespace: canary-poc
+spec:
+  subscriptions:
+    - image:
+        repoURL: ghcr.io/mwdomino/app1
+        imageSelectionStrategy: SemVer
+        semverConstraint: ">=0.0.0"
+    - image:
+        repoURL: ghcr.io/mwdomino/app2
+        imageSelectionStrategy: SemVer
+        semverConstraint: ">=0.0.0"
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: dev
+  namespace: canary-poc
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: location-images
+      sources:
+        direct: true
+  promotionTemplate:
+    spec:
+      steps:
+        - uses: git-clone
+          config:
+            repoURL: https://github.com/mwdomino/k8s-canary.git
+            checkout:
+              - branch: main
+                path: ./repo
+        - uses: yaml-update
+          config:
+            path: ./repo/apps/location/dev/values.yaml
+            updates:
+              - key: apps.app1.image.tag
+                value: ${{ imageFrom("ghcr.io/mwdomino/app1").Tag }}
+              - key: apps.app2.image.tag
+                value: ${{ imageFrom("ghcr.io/mwdomino/app2").Tag }}
+        - uses: git-commit
+          config:
+            path: ./repo
+            message: "promote(dev): app1/app2 ${{ imageFrom(\"ghcr.io/mwdomino/app1\").Tag }}"
+        - uses: git-push
+          config:
+            path: ./repo
+        - uses: argocd-update
+          config:
+            apps:
+              - name: location-dev
+                namespace: argocd
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: stage
+  namespace: canary-poc
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: location-images
+      sources:
+        stages: [dev]
+  promotionTemplate:
+    spec:
+      steps:
+        - uses: git-clone
+          config:
+            repoURL: https://github.com/mwdomino/k8s-canary.git
+            checkout:
+              - branch: main
+                path: ./repo
+        - uses: yaml-update
+          config:
+            path: ./repo/apps/location/stage/values.yaml
+            updates:
+              - key: apps.app1.image.tag
+                value: ${{ imageFrom("ghcr.io/mwdomino/app1").Tag }}
+              - key: apps.app2.image.tag
+                value: ${{ imageFrom("ghcr.io/mwdomino/app2").Tag }}
+        - uses: git-commit
+          config:
+            path: ./repo
+            message: "promote(stage): app1/app2 ${{ imageFrom(\"ghcr.io/mwdomino/app1\").Tag }}"
+        - uses: git-push
+          config:
+            path: ./repo
+        - uses: argocd-update
+          config:
+            apps:
+              - name: location-stage
+                namespace: argocd
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: prod
+  namespace: canary-poc
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: location-images
+      sources:
+        stages: [stage]
+  promotionTemplate:
+    spec:
+      steps:
+        - uses: git-clone
+          config:
+            repoURL: https://github.com/mwdomino/k8s-canary.git
+            checkout:
+              - branch: main
+                path: ./repo
+        - uses: yaml-update
+          config:
+            path: ./repo/apps/location/prod/values.yaml
+            updates:
+              - key: apps.app1.image.tag
+                value: ${{ imageFrom("ghcr.io/mwdomino/app1").Tag }}
+              - key: apps.app2.image.tag
+                value: ${{ imageFrom("ghcr.io/mwdomino/app2").Tag }}
+        - uses: git-commit
+          config:
+            path: ./repo
+            message: "promote(prod): app1/app2 ${{ imageFrom(\"ghcr.io/mwdomino/app1\").Tag }}"
+        - uses: git-push
+          config:
+            path: ./repo
+        - uses: argocd-update
+          config:
+            apps:
+              - name: location-prod
+                namespace: argocd
