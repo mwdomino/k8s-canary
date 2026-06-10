@@ -25,7 +25,15 @@ up:
     kubectl config use-context {{KUBE_CONTEXT}}
 
 down:
+    -pkill -f cloud-provider-kind
     kind delete cluster --name {{CLUSTER}}
+
+# Run cloud-provider-kind in the background so LoadBalancer Services get
+# external IPs AND their ports get mapped to the host.
+lb-up:
+    @pgrep -f cloud-provider-kind >/dev/null && echo "cloud-provider-kind already running" || \
+      (nohup cloud-provider-kind --enable-lb-port-mapping >/tmp/cpk-canary-poc.log 2>&1 & echo "cloud-provider-kind started (pid $!), logs in /tmp/cpk-canary-poc.log")
+    @sleep 3
 
 # === platform install (run in order, or use `just bootstrap`) ===
 
@@ -113,7 +121,7 @@ urls: _require-context
     @echo "  app2 prod:  http://app2-prod.{{LAN_IP}}.nip.io"
     @echo "  global:     http://global.{{LAN_IP}}.nip.io"
 
-bootstrap: up install-platform install-kargo-credentials install-apps urls
+bootstrap: up lb-up install-platform install-kargo-credentials install-apps urls
 
 # === demo helpers ===
 

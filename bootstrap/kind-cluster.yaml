@@ -6,11 +6,12 @@ networking:
   kubeProxyMode: none
 nodes:
   - role: control-plane
-    extraPortMappings:
-      - containerPort: 80
-        hostPort: 80
-        listenAddress: "0.0.0.0"
-      - containerPort: 443
-        hostPort: 443
-        listenAddress: "0.0.0.0"
   - role: worker
+
+# Why no extraPortMappings: kind doesn't have a LoadBalancer provisioner,
+# so the Gateway's cilium-gateway-* Service stays Pending. We use
+# `cloud-provider-kind --enable-lb-port-mapping` (run on the host)
+# to assign LB IPs AND map LB Service ports to host ports. extraPortMappings
+# here would squat on :80/:443 and force cpk into high random ports.
+#
+# Run cpk via `just lb-up` (or manually: cloud-provider-kind --enable-lb-port-mapping).
