@@ -18,8 +18,8 @@ down:
 # === platform install (run in order, or use `just bootstrap`) ===
 
 install-gateway-crds:
-    kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/{{GATEWAY_API_VERSION}}/standard-install.yaml
-    kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/{{GATEWAY_API_VERSION}}/experimental-install.yaml
+    kubectl apply --server-side --validate=false -f https://github.com/kubernetes-sigs/gateway-api/releases/download/{{GATEWAY_API_VERSION}}/standard-install.yaml
+    kubectl apply --server-side --validate=false -f https://github.com/kubernetes-sigs/gateway-api/releases/download/{{GATEWAY_API_VERSION}}/experimental-install.yaml
 
 install-cilium:
     helm repo add cilium https://helm.cilium.io >/dev/null
