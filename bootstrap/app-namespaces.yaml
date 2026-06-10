@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+  labels: { canary-poc/env: dev }
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: stage
+  labels: { canary-poc/env: stage }
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod
+  labels: { canary-poc/env: prod }
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: global
+  labels: { canary-poc/env: global }
