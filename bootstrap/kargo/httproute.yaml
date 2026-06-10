@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: kargo
+  namespace: kargo
+spec:
+  parentRefs:
+    - name: shared
+      namespace: gateway
+      sectionName: http
+  hostnames:
+    - kargo.__LAN_IP__.nip.io
+  rules:
+    - backendRefs:
+        - name: kargo-api
+          port: 80

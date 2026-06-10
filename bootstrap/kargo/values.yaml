@@ -1,0 +1,13 @@
+api:
+  service:
+    type: ClusterIP
+  adminAccount:
+    enabled: true
+    password: "canary-poc-admin"
+    tokenSigningKey: "canary-poc-token-signing-key-please-change"
+  tlsEnabled: false
+controller:
+  argocd:
+    namespace: argocd
+webhooksServer:
+  enabled: true
