@@ -78,6 +78,7 @@ install-platform: install-gateway-crds install-cilium install-namespaces install
 # Apply Kargo git credentials. Requires env var: K8S_CANARY_PAT
 install-kargo-credentials:
     @test -n "${K8S_CANARY_PAT:-}" || (echo "set K8S_CANARY_PAT to your PAT"; exit 1)
+    kubectl create namespace canary-poc --dry-run=client -o yaml | kubectl apply -f -
     PAT="${K8S_CANARY_PAT}" envsubst < bootstrap/kargo/credentials.template.yaml | kubectl apply -f -
 
 # === apps (Argo CD app-of-apps + Kargo project) ===
