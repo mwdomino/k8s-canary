@@ -1,0 +1,12 @@
+# Override the default Cilium GatewayClass config so the generated
+# Service is LoadBalancer (instead of ClusterIP). cloud-provider-kind
+# then assigns an external IP and the Gateway becomes Programmed.
+apiVersion: cilium.io/v2alpha1
+kind: CiliumGatewayClassConfig
+metadata:
+  name: lb
+  namespace: default
+spec:
+  description: "Force LoadBalancer Service for the cilium GatewayClass (kind + cpk)"
+  service:
+    type: LoadBalancer

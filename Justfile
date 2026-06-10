@@ -55,6 +55,9 @@ install-namespaces: _require-context
     kubectl --context {{KUBE_CONTEXT}} apply -f bootstrap/gateway/namespace.yaml
 
 install-gateway: _require-context lb-up
+    # Tell Cilium to render the gateway's Service as LoadBalancer (default is ClusterIP).
+    kubectl --context {{KUBE_CONTEXT}} apply -f bootstrap/gateway/gatewayclassconfig.yaml
+    kubectl --context {{KUBE_CONTEXT}} patch gatewayclass cilium --type=merge -p '{"spec":{"parametersRef":{"group":"cilium.io","kind":"CiliumGatewayClassConfig","name":"lb","namespace":"default"}}}'
     kubectl --context {{KUBE_CONTEXT}} apply -f bootstrap/gateway/gateway.yaml
     kubectl --context {{KUBE_CONTEXT}} apply -f bootstrap/gateway/referencegrants.yaml
     kubectl --context {{KUBE_CONTEXT}} -n gateway wait --for=condition=Programmed gateway/shared --timeout=3m
