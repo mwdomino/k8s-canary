@@ -6,9 +6,13 @@ api:
     # bcrypt of "canary-poc-admin" — POC demo password, not a real secret.
     passwordHash: "$2y$10$VClSNPpJePV1pIfIQFg.9.pp.VPIc47OuIKQqnCO8.vlvbrhG87W6"
     tokenSigningKey: "canary-poc-token-signing-key-please-change"
-  tlsEnabled: false
+  tls:
+    enabled: false
 controller:
   argocd:
     namespace: argocd
 webhooksServer:
-  enabled: true
+  # Disabled — needs cert-manager. We poll the Warehouse instead.
+  enabled: false
+externalWebhooksServer:
+  enabled: false
