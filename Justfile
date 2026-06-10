@@ -31,9 +31,13 @@ down:
 # Run cloud-provider-kind in the background so LoadBalancer Services get
 # external IPs AND their ports get mapped to the host.
 lb-up:
-    @pgrep -f cloud-provider-kind >/dev/null && echo "cloud-provider-kind already running" || \
-      (nohup cloud-provider-kind --enable-lb-port-mapping >/tmp/cpk-canary-poc.log 2>&1 & echo "cloud-provider-kind started (pid $!), logs in /tmp/cpk-canary-poc.log")
-    @sleep 3
+    @if pidof cloud-provider-kind >/dev/null; then \
+       echo "cloud-provider-kind already running (pid $(pidof cloud-provider-kind))"; \
+     else \
+       nohup cloud-provider-kind --enable-lb-port-mapping >/tmp/cpk-canary-poc.log 2>&1 & \
+       echo "cloud-provider-kind started (pid $!), logs in /tmp/cpk-canary-poc.log"; \
+     fi
+    @sleep 5
 
 # === platform install (run in order, or use `just bootstrap`) ===
 
