@@ -115,17 +115,19 @@ install-apps: _require-context
 # === ergonomics ===
 
 urls: _require-context
-    @echo "LAN IP: {{LAN_IP}}"
-    @echo "  Argo CD:    http://argocd.{{LAN_IP}}.nip.io   (admin / $(kubectl --context {{KUBE_CONTEXT}} -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d))"
-    @echo "  Kargo:      http://kargo.{{LAN_IP}}.nip.io     (admin / canary-poc-admin)"
-    @echo "  Rollouts:   http://rollouts.{{LAN_IP}}.nip.io"
-    @echo "  app1 dev:   http://app1-dev.{{LAN_IP}}.nip.io"
-    @echo "  app1 stage: http://app1-stage.{{LAN_IP}}.nip.io"
-    @echo "  app1 prod:  http://app1-prod.{{LAN_IP}}.nip.io"
-    @echo "  app2 dev:   http://app2-dev.{{LAN_IP}}.nip.io"
-    @echo "  app2 stage: http://app2-stage.{{LAN_IP}}.nip.io"
-    @echo "  app2 prod:  http://app2-prod.{{LAN_IP}}.nip.io"
-    @echo "  global:     http://global.{{LAN_IP}}.nip.io"
+    @LB_PORT=$(docker ps --format '{{{{.Names}}}} {{{{.Ports}}}}' | awk '/^kindccm/ {for (i=1; i<=NF; i++) if ($i ~ /->80\/tcp/) {split($i,a,":"); split(a[2],b,"->"); print b[1]; exit}}'); \
+     PORT_SUFFIX=$([ "$LB_PORT" = "80" ] && echo "" || echo ":$LB_PORT"); \
+     echo "LAN IP: {{LAN_IP}}    Gateway host port: $LB_PORT"; \
+     echo "  Argo CD:    http://argocd.{{LAN_IP}}.nip.io$PORT_SUFFIX   (admin / $(kubectl --context {{KUBE_CONTEXT}} -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d))"; \
+     echo "  Kargo:      http://kargo.{{LAN_IP}}.nip.io$PORT_SUFFIX     (admin / canary-poc-admin)"; \
+     echo "  Rollouts:   http://rollouts.{{LAN_IP}}.nip.io$PORT_SUFFIX"; \
+     echo "  app1 dev:   http://app1-dev.{{LAN_IP}}.nip.io$PORT_SUFFIX"; \
+     echo "  app1 stage: http://app1-stage.{{LAN_IP}}.nip.io$PORT_SUFFIX"; \
+     echo "  app1 prod:  http://app1-prod.{{LAN_IP}}.nip.io$PORT_SUFFIX"; \
+     echo "  app2 dev:   http://app2-dev.{{LAN_IP}}.nip.io$PORT_SUFFIX"; \
+     echo "  app2 stage: http://app2-stage.{{LAN_IP}}.nip.io$PORT_SUFFIX"; \
+     echo "  app2 prod:  http://app2-prod.{{LAN_IP}}.nip.io$PORT_SUFFIX"; \
+     echo "  global:     http://global.{{LAN_IP}}.nip.io$PORT_SUFFIX"
 
 bootstrap: up lb-up install-platform install-kargo-credentials install-apps urls
 
