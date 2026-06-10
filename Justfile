@@ -73,6 +73,13 @@ install-kargo:
 
 install-platform: install-gateway-crds install-cilium install-namespaces install-gateway install-argocd install-rollouts install-kargo
 
+# === Kargo credentials ===
+
+# Apply Kargo git credentials. Requires env var: K8S_CANARY_PAT
+install-kargo-credentials:
+    @test -n "${K8S_CANARY_PAT:-}" || (echo "set K8S_CANARY_PAT to your PAT"; exit 1)
+    PAT="${K8S_CANARY_PAT}" envsubst < bootstrap/kargo/credentials.template.yaml | kubectl apply -f -
+
 # === apps (Argo CD app-of-apps + Kargo project) ===
 
 install-apps:
@@ -93,7 +100,7 @@ urls:
     @echo "  app2 prod:  http://app2-prod.{{LAN_IP}}.nip.io"
     @echo "  global:     http://global.{{LAN_IP}}.nip.io"
 
-bootstrap: up install-platform install-apps urls
+bootstrap: up install-platform install-kargo-credentials install-apps urls
 
 # === demo helpers ===
 
