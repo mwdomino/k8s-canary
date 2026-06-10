@@ -1,6 +1,4 @@
-kubeProxyReplacement: true
-k8sServiceHost: k3d-canary-poc-server-0
-k8sServicePort: 6443
+kubeProxyReplacement: false
 gatewayAPI:
   enabled: true
   enableAlpn: false
@@ -18,13 +16,5 @@ ipam:
   mode: kubernetes
 routingMode: tunnel
 tunnelProtocol: vxlan
-
-# Keep Cilium out of host-namespace traffic so the k3d serverlb (a plain
-# docker container, not a k8s pod) can still reach the apiserver in the
-# server container over the docker bridge.
-hostServices:
-  hostNamespaceOnly: true
-socketLB:
-  hostNamespaceOnly: true
 cni:
   exclusive: false
