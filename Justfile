@@ -2,7 +2,7 @@ set shell := ["bash", "-uc"]
 
 LAN_IP := `ip -4 addr show | awk '/inet / && $2 !~ /^127/ {print $2}' | cut -d/ -f1 | head -n1`
 CLUSTER := "canary-poc"
-KUBE_CONTEXT := "k3d-canary-poc"
+KUBE_CONTEXT := "kind-canary-poc"
 GATEWAY_API_VERSION := "v1.2.1"
 
 default:
@@ -21,11 +21,11 @@ _require-context:
 # === cluster lifecycle ===
 
 up:
-    k3d cluster create --config bootstrap/k3d-cluster.yaml
+    kind create cluster --config bootstrap/kind-cluster.yaml
     kubectl config use-context {{KUBE_CONTEXT}}
 
 down:
-    k3d cluster delete {{CLUSTER}}
+    kind delete cluster --name {{CLUSTER}}
 
 # === platform install (run in order, or use `just bootstrap`) ===
 
