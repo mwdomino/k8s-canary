@@ -1,0 +1,20 @@
+global:
+  domain: argocd.__LAN_IP__.nip.io
+configs:
+  params:
+    server.insecure: true
+server:
+  service:
+    type: ClusterIP
+  extraArgs:
+    - --insecure
+controller:
+  replicas: 1
+repoServer:
+  replicas: 1
+applicationSet:
+  replicas: 1
+notifications:
+  enabled: false
+dex:
+  enabled: false
