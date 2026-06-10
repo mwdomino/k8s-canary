@@ -4,6 +4,8 @@ metadata:
   name: location-prod
   namespace: argocd
   finalizers: [resources-finalizer.argocd.argoproj.io]
+  annotations:
+    kargo.akuity.io/authorized-stage: canary-poc:prod
 spec:
   project: default
   destination:
