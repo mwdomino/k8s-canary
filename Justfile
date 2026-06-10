@@ -22,7 +22,7 @@ install-gateway-crds:
     kubectl apply --server-side --validate=false -f https://github.com/kubernetes-sigs/gateway-api/releases/download/{{GATEWAY_API_VERSION}}/experimental-install.yaml
 
 install-cilium:
-    helm repo add cilium https://helm.cilium.io >/dev/null
+    helm repo add cilium https://helm.cilium.io 2>/dev/null || true
     helm repo update cilium
     helm upgrade --install cilium cilium/cilium \
       --namespace kube-system \
@@ -42,7 +42,7 @@ install-gateway:
 install-argocd:
     kubectl apply -f bootstrap/argocd/namespace.yaml
     sed "s/__LAN_IP__/{{LAN_IP}}/g" bootstrap/argocd/values.yaml > /tmp/argocd-values.yaml
-    helm repo add argo https://argoproj.github.io/argo-helm >/dev/null
+    helm repo add argo https://argoproj.github.io/argo-helm 2>/dev/null || true
     helm repo update argo
     helm upgrade --install argocd argo/argo-cd \
       --namespace argocd \
@@ -63,7 +63,7 @@ install-rollouts:
 
 install-kargo:
     kubectl apply -f bootstrap/kargo/namespace.yaml
-    helm repo add kargo https://charts.kargo.io >/dev/null
+    helm repo add kargo https://charts.kargo.io 2>/dev/null || true
     helm repo update kargo
     helm upgrade --install kargo kargo/kargo \
       --namespace kargo \
